@@ -38,6 +38,7 @@ body {
 }
 
 .error {
+    font-family: Roboto;
     width: 350px;
     margin-top: 60px;
 }
@@ -59,5 +60,18 @@ body {
 
 .sign-buttons {
     display: flex;
+    align-items: center;
     gap: 10px;
+}
+
+.avatar-wrapper {
+    color: black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .icon {
+        width: 46px;
+        height: 46px;
+    }
 }

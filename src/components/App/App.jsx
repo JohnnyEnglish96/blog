@@ -6,7 +6,10 @@ import Layout from '../Layout';
 import NotFoundPage from '../../pages/NotFoundPage';
 import HomePage from '../../pages/HomePage';
 import ArticlePage from '../../pages/ArticlePage';
-import { fetchArticles } from '../../store/reducers/articlesSlice';
+import SignUpPage from '../../pages/SignUpPage';
+import SignInPage from '../../pages/SignInPage';
+import EditProfilePage from '../../pages/EditProfilePage';
+import { fetchArticles } from '../../store/features/articles/articlesThunks';
 
 function App() {
   const dispatch = useDispatch();
@@ -19,7 +22,10 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="/blog/:slug" element={<ArticlePage />} />
+        <Route path="blog/:slug" element={<ArticlePage />} />
+        <Route path="sign-up" element={<SignUpPage />} />
+        <Route path="sign-in" element={<SignInPage />} />
+        <Route path="profile" element={<EditProfilePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -7,7 +7,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 
 import styles from '../components/App/App.module.scss';
 import Article from '../components/Article';
-import { fetchArticleBySlug } from '../store/reducers/articleDetailsSlice';
+import { fetchArticleBySlug } from '../store/features/articles/articlesThunks';
 
 const antIcon = (
   <LoadingOutlined
@@ -19,9 +19,9 @@ const antIcon = (
 );
 
 function ArticlePage() {
-  const loading = useSelector((state) => state.articleDetail.loading);
-  const error = useSelector((state) => state.articleDetail.error);
-  const article = useSelector((state) => state.articleDetail.article);
+  const loading = useSelector((state) => state.articles.loading);
+  const error = useSelector((state) => state.articles.error);
+  const article = useSelector((state) => state.articles.article);
   const dispatch = useDispatch();
 
   const { slug } = useParams();

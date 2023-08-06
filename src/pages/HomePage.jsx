@@ -6,7 +6,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import ArticleList from '../components/ArticleList';
 import styles from '../components/App/App.module.scss';
 
-const antIcon = (
+export const antIcon = (
   <LoadingOutlined
     style={{
       fontSize: 60,

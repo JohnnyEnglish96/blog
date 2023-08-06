@@ -5,7 +5,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { Pagination } from 'antd';
 
 import Article from '../Article';
-import { fetchArticles } from '../../store/reducers/articlesSlice';
+import { fetchArticles } from '../../store/features/articles/articlesThunks';
 
 import styles from './ArticleList.module.scss';
 
