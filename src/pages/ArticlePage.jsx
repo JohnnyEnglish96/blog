@@ -23,7 +23,6 @@ function ArticlePage() {
   const error = useSelector((state) => state.articles.error);
   const article = useSelector((state) => state.articles.article);
   const dispatch = useDispatch();
-
   const { slug } = useParams();
 
   useEffect(() => {

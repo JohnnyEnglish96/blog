@@ -1,15 +1,33 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { Spin } from 'antd';
 
 import EditProfileForm from '../components/EditProfileForm';
-import { clearEdited } from '../store/features/user/userSlice';
+import styles from '../components/App/App.module.scss';
+
+import { antIcon } from './HomePage';
 
 function EditProfilePage() {
-  const dispatch = useDispatch();
+  const isLogin = useSelector((state) => state.user.isLogin);
+  const loadingLogout = useSelector((state) => state.user.loading);
+  const navigator = useNavigate();
+
   useEffect(() => {
-    dispatch(clearEdited());
-  }, [dispatch]);
-  return <EditProfileForm />;
+    if (!isLogin) {
+      navigator('/');
+    }
+  }, [isLogin, navigator]);
+
+  const showLoad = <Spin className={styles.spinner} indicator={antIcon} />;
+  const content = loadingLogout ? null : <EditProfileForm />;
+
+  return (
+    <>
+      {loadingLogout && showLoad}
+      {content}
+    </>
+  );
 }
 
 export default EditProfilePage;

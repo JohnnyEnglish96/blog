@@ -107,4 +107,11 @@ const fetchEditUser = createAsyncThunk(
   }
 );
 
-export { fetchGetUser, fetchNewUser, fetchEditUser };
+const LogOut = createAsyncThunk('user/logOut', async () => {
+  return new Promise((resolve) => {
+    localStorage.removeItem('user');
+    setTimeout(() => resolve(null), 500);
+  });
+});
+
+export { fetchGetUser, fetchNewUser, fetchEditUser, LogOut };
