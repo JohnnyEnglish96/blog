@@ -1,6 +1,68 @@
+/* eslint-disable no-debugger */
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 const baseUrl = 'https://blog.kata.academy/api/articles/';
+
+const postOption = (body) => {
+  const { token } = JSON.parse(localStorage.getItem('user'));
+  const { Title, description, tagList, Body } = body;
+  const fixedTagList = tagList.map((tag) => tag.trim());
+
+  const bodyInfo = {
+    article: {
+      title: Title.trim(),
+      description: description.trim(),
+      body: Body.trim(),
+      tagList: fixedTagList,
+    },
+  };
+
+  return {
+    method: 'POST',
+    headers: {
+      Authorization: `Token ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+    body: JSON.stringify(bodyInfo),
+  };
+};
+
+const putOption = (body) => {
+  const { token } = JSON.parse(localStorage.getItem('user'));
+  const { Title, description, tagList, Body } = body;
+  const fixedTagList = tagList.map((tag) => tag.trim());
+
+  const bodyInfo = {
+    article: {
+      title: Title.trim(),
+      description: description.trim(),
+      body: Body.trim(),
+      tagList: fixedTagList,
+    },
+  };
+
+  return {
+    method: 'PUT',
+    headers: {
+      Authorization: `Token ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+    body: JSON.stringify(bodyInfo),
+  };
+};
+
+const deleteOption = (token) => {
+  return {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Token ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+  };
+};
 
 const fetchArticleBySlug = createAsyncThunk(
   'article/fetchArticleBySlug',
@@ -36,4 +98,59 @@ const fetchArticles = createAsyncThunk(
   }
 );
 
-export { fetchArticleBySlug, fetchArticles };
+const fetchNewArticle = createAsyncThunk(
+  'articles/fetchNewArticle',
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${baseUrl}`, postOption(body));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(`server Error ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const fetchUpdateArticle = createAsyncThunk(
+  'articles/fetchUpdateArticle',
+  async (body, { rejectWithValue }) => {
+    const { slug } = body;
+    try {
+      const response = await fetch(`${baseUrl}${slug}`, putOption(body));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(`server Error ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const fetchDeleteArticle = createAsyncThunk(
+  'articles/fetchDeleteArticle',
+  async (articleData, { rejectWithValue }) => {
+    const { slug, token } = articleData;
+    try {
+      const response = await fetch(`${baseUrl}${slug}`, deleteOption(token));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(`server Error ${response.status}`);
+      }
+      return true;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export {
+  fetchArticleBySlug,
+  fetchArticles,
+  fetchNewArticle,
+  fetchUpdateArticle,
+  fetchDeleteArticle,
+};

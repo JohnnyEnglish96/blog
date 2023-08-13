@@ -1,6 +1,7 @@
+/* eslint-disable no-debugger */
 import { createSlice, isAnyOf } from '@reduxjs/toolkit';
 
-import { fetchNewUser, fetchGetUser, fetchEditUser, LogOut } from './userThunks';
+import { fetchNewUser, fetchLoginUser, fetchEditUser, LogOut, fetchGetUser } from './userThunks';
 
 const user = localStorage.getItem('user');
 
@@ -24,20 +25,34 @@ const userSlice = createSlice({
     },
     clearEdited(state) {
       state.edited = false;
+      state.error = null;
     },
     clearRegister(state) {
       state.isRegistered = false;
       state.details = null;
       localStorage.removeItem('defaultUser');
     },
+    toLogin(state) {
+      localStorage.removeItem('defaultUser');
+      localStorage.removeItem('logoutEvent');
+      state.isLogin = true;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addMatcher(
-        isAnyOf(fetchNewUser.pending, fetchGetUser.pending, fetchEditUser.pending, LogOut.pending),
+        isAnyOf(
+          fetchNewUser.pending,
+          fetchLoginUser.pending,
+          fetchEditUser.pending,
+          fetchGetUser.pending,
+          LogOut.pending
+        ),
         (state, action) => {
           const { type } = action;
           if (type === LogOut.pending.type) {
+            localStorage.removeItem('loginEvent');
+            localStorage.setItem('logoutEvent', 'logoutEvent');
             state.isLogin = false;
           }
           state.loading = true;
@@ -47,15 +62,17 @@ const userSlice = createSlice({
       .addMatcher(
         isAnyOf(
           fetchNewUser.fulfilled,
-          fetchGetUser.fulfilled,
+          fetchLoginUser.fulfilled,
           fetchEditUser.fulfilled,
+          fetchGetUser.fulfilled,
           LogOut.fulfilled
         ),
         (state, action) => {
           const { type, payload } = action;
-          if (type === fetchGetUser.fulfilled.type && payload?.user) {
+          if (type === fetchLoginUser.fulfilled.type && payload?.user) {
             localStorage.removeItem('defaultUser');
             state.isLogin = true;
+            localStorage.setItem('loginEvent', 'loginEvent');
             localStorage.setItem('user', JSON.stringify(payload.user));
           } else if (type === fetchEditUser.fulfilled.type && payload?.user) {
             localStorage.removeItem('defaultUser');
@@ -64,13 +81,15 @@ const userSlice = createSlice({
           } else if (type === fetchNewUser.fulfilled.type && payload?.user) {
             localStorage.removeItem('defaultUser');
             state.isRegistered = true;
+          } else if (type === fetchGetUser.fulfilled.type) {
+            localStorage.setItem('user', JSON.stringify(payload.user));
           }
           state.loading = false;
           state.details = payload;
         }
       )
       .addMatcher(
-        isAnyOf(fetchNewUser.rejected, fetchGetUser.rejected, fetchEditUser.rejected),
+        isAnyOf(fetchNewUser.rejected, fetchLoginUser.rejected, fetchEditUser.rejected),
         (state, action) => {
           state.loading = false;
           state.error = action.payload;
@@ -79,5 +98,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearHache, clearEdited, clearRegister } = userSlice.actions;
+export const { clearHache, clearEdited, clearRegister, toLogin } = userSlice.actions;
 export default userSlice.reducer;

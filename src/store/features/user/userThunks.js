@@ -54,13 +54,24 @@ const putOption = (newUserData) => {
   };
 };
 
+const getOption = (token) => {
+  return {
+    method: 'GET',
+    headers: {
+      Authorization: `Token ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+  };
+};
+
 const fetchNewUser = createAsyncThunk(
   'user/fetchNewUser',
   async (userData, { rejectWithValue }) => {
     try {
       const response = await fetch(`${baseUrl}users/`, postOption(userData, true));
       if (!response.ok && response.status !== 422) {
-        throw new Error(`server Error ${response.status}`);
+        throw new Error(response.status);
       }
       const data = await response.json();
 
@@ -71,14 +82,14 @@ const fetchNewUser = createAsyncThunk(
   }
 );
 
-const fetchGetUser = createAsyncThunk(
-  'user/fetchGetUser',
+const fetchLoginUser = createAsyncThunk(
+  'user/fetchLoginUser',
   async (userData, { rejectWithValue }) => {
     try {
       const response = await fetch(`${baseUrl}users/login`, postOption(userData, false));
 
       if (!response.ok && response.status !== 422) {
-        throw new Error(`server Error ${response.status}`);
+        throw new Error(response.status);
       }
       const data = await response.json();
 
@@ -88,6 +99,21 @@ const fetchGetUser = createAsyncThunk(
     }
   }
 );
+
+const fetchGetUser = createAsyncThunk('user/fetchGetUser', async (token, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${baseUrl}user`, getOption(token));
+
+    if (!response.ok && response.status !== 422) {
+      throw new Error(response.status);
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return rejectWithValue(error.message);
+  }
+});
 
 const fetchEditUser = createAsyncThunk(
   'user/fetchEditUser',
@@ -96,7 +122,7 @@ const fetchEditUser = createAsyncThunk(
       const response = await fetch(`${baseUrl}user`, putOption(newUserData));
 
       if (!response.ok && response.status !== 422) {
-        throw new Error(`server Error ${response.status}`);
+        throw new Error(response.status);
       }
       const data = await response.json();
 
@@ -114,4 +140,4 @@ const LogOut = createAsyncThunk('user/logOut', async () => {
   });
 });
 
-export { fetchGetUser, fetchNewUser, fetchEditUser, LogOut };
+export { fetchLoginUser, fetchNewUser, fetchEditUser, LogOut, fetchGetUser };

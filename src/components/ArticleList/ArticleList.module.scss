@@ -36,10 +36,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
+
     a {
         font-weight: 500;
         color: #1890ff;
     }
+
     a:hover {
         text-decoration: underline;
     }
@@ -47,15 +49,22 @@
 
 .avatar {
     grid-area: avatar;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 50px;
+    grid-template-rows: auto 10px 50px;
+    grid-template-areas:
+        "about photo"
+        "about photo"
+        "btns btns";
     gap: 10px;
 }
 
 .about {
+    grid-area: about;
     line-height: 28px;
     font-size: 18px;
     text-align: end;
+
     p:last-child {
         font-size: 12px;
         line-height: 22px;
@@ -66,12 +75,42 @@
 }
 
 .photo {
+    grid-area: photo;
     width: 46px;
     height: 46px;
+
     img {
         border-radius: 50%;
         width: 100%;
         height: 100%;
+    }
+}
+
+.btns {
+    grid-area: btns;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+
+    .btn {
+        background-color: transparent;
+        width: 80px;
+
+        &.delete {
+            color: #F5222D;
+            border-color: #F5222D;
+        }
+        &.delete:hover {
+            background-color: #ff4d4f !important;
+        }
+        &.edit {
+            color: #1890FF;
+            border-color: #1890FF;
+        }
+        &.edit:hover {
+            background-color: #1677ff;
+        }
     }
 }
 
@@ -83,9 +122,10 @@
     grid-area: description;
     line-height: 22px;
 }
+
 .description.md {
-   color: grey;
-   font-size: 12px;
+    color: grey;
+    font-size: 12px;
 }
 
 .body {
@@ -98,6 +138,7 @@
     align-items: center;
     font-size: 12px;
     gap: 5px;
+
     button {
         width: 16px;
         height: 16px;

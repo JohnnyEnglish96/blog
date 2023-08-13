@@ -1,12 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-debugger */
 import React, { useEffect, useState } from 'react';
 import { Button, ConfigProvider } from 'antd';
 import { Outlet, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { LogOut } from '../../store/features/user/userThunks';
+import { LogOut, fetchGetUser } from '../../store/features/user/userThunks';
 import styles from '../App/App.module.scss';
 import avatar from '../../assets/img/avatar.jpg';
+import { toLogin } from '../../store/features/user/userSlice';
 
 function Layout() {
   return (
@@ -23,18 +25,35 @@ function Header() {
   const edited = useSelector((state) => state.user.edited);
 
   const user = localStorage.getItem('user');
+  const getUser = JSON.parse(user);
   const dispatch = useDispatch();
+
   useEffect(() => {
-    if (!isLogin && !user) {
+    if (!isLogin) {
       setUpdatedUser(null);
-    } else if (user || edited) {
+    } else if (isLogin || edited) {
+      dispatch(fetchGetUser(getUser?.token));
       setUpdatedUser(JSON.parse(user));
     }
-  }, [edited, user, isLogin]);
+  }, [edited, user, isLogin, dispatch]);
 
   const handleLogout = () => {
     dispatch(LogOut());
   };
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.newValue === 'loginEvent') {
+        dispatch(toLogin());
+      } else if (e.newValue === 'logoutEvent') {
+        handleLogout();
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [dispatch]);
 
   const icon = (
     <div className={styles.icon}>
@@ -59,9 +78,12 @@ function Header() {
       }}
     >
       <li className={styles['sign-buttons']}>
-        <Button type="primary" className={styles['create-btn']}>
-          Create article
-        </Button>
+        <Link to="new-article">
+          <Button type="primary" className={styles['create-btn']}>
+            Create article
+          </Button>
+        </Link>
+
         <Link to="/profile">
           <div className={styles['avatar-wrapper']}>
             {updatedUser?.username}
@@ -119,7 +141,11 @@ function Header() {
   return (
     <ul className={styles.header}>
       <li>
-        <Link to="/" style={{ fontWeight: 400, fontSize: 18, textAlign: 'center', color: 'black' }}>
+        <Link
+          className={styles['header-title']}
+          to="/"
+          style={{ fontWeight: 400, fontSize: 18, textAlign: 'center', color: 'black' }}
+        >
           Realworld Blog
         </Link>
       </li>

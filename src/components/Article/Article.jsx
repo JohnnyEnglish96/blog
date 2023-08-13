@@ -1,13 +1,15 @@
 /* eslint-disable no-debugger */
 import React from 'react';
-import { Tag, Button } from 'antd';
+import { Tag, Button, Popconfirm } from 'antd';
 import { format } from 'date-fns';
 import { nanoid } from '@reduxjs/toolkit';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { useDispatch, useSelector } from 'react-redux';
 
 import heart from '../../assets/img/heart.svg';
 import styles from '../ArticleList/ArticleList.module.scss';
+import { fetchDeleteArticle } from '../../store/features/articles/articlesThunks';
 
 const MAX_TITLE_LENGTH = 20;
 
@@ -30,8 +32,14 @@ function Article({ article, isDetailed }) {
     updatedAt,
     author: { username, image },
   } = article;
+  const isLogin = useSelector((state) => state.user.isLogin);
 
   const mdTitle = `## ${title}`;
+  const navigator = useNavigate();
+  const dispatch = useDispatch();
+
+  const user = localStorage.getItem('user');
+  const getUser = JSON.parse(user);
 
   return (
     <div className={isDetailed ? `${styles.card} ${styles.md}` : styles.card}>
@@ -62,6 +70,33 @@ function Article({ article, isDetailed }) {
         <div className={styles.photo}>
           <img src={image} alt="avatar" />
         </div>
+        {isDetailed && username === getUser?.username && isLogin && (
+          <div className={styles.btns}>
+            <Popconfirm
+              placement="right"
+              title="Are you sure to delete this task?"
+              description="Delete the task"
+              onConfirm={() =>
+                dispatch(fetchDeleteArticle({ token: getUser?.token, slug })).then(() =>
+                  navigator('/')
+                )
+              }
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" danger className={`${styles.btn} ${styles.delete}`}>
+                Delete
+              </Button>
+            </Popconfirm>
+            <Button
+              type="primary"
+              className={`${styles.btn} ${styles.edit}`}
+              onClick={() => navigator(`/articles/${slug}/edit`)}
+            >
+              Edit
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className={styles.tag}>

@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { Button, Divider } from 'antd';
 
 import { fetchNewUser } from '../../store/features/user/userThunks';
-import withCommonForm from '../hoc/withCommonForm';
+import withCommonForm from '../../hoc/withCommonForm';
 import { renderInput, renderCheckbox } from '../../utils/createInput';
 
 import styles from './RegisterForm.module.scss';
@@ -17,7 +17,6 @@ function RegisterForm() {
   const dispatch = useDispatch();
   const getUserData = useSelector((state) => state.user.details);
   const defaultUser = JSON.parse(localStorage.getItem('defaultUser'));
-
   const {
     register,
     setError,
@@ -55,8 +54,8 @@ function RegisterForm() {
       {renderInput('Username', 'Username', 'Username', register, errors, 'text', {
         required: 'This field required',
         pattern: {
-          value: /^[A-Za-z][A-Za-z0-9]{2,20}$/gi,
-          message: 'Invalid username, example Abcd123',
+          value: /^[a-z][a-z0-9]{2,20}$/gm,
+          message: 'Invalid username, example abcd123',
         },
         maxLength: {
           value: 20,

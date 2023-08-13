@@ -1,0 +1,82 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+}
+
+.text-area {
+    font-family: Roboto;
+    font-size: 16px;
+    margin-top: 3px;
+    width: 100%;
+    height: 168px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--grey-grey-5, #D9D9D9);
+    background: var(--grey-grey-1, #FFF);
+    outline: none;
+
+    &.error-border{
+        border-color: #F5222D;
+    }
+}
+
+textarea {
+    resize: none;
+}
+
+.tag {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 23px;
+}
+
+.tag-input {
+    font-family: Roboto;
+    font-size: 16px;
+    width: 300px;
+    height: 40px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--grey-grey-5, #D9D9D9);
+    background: var(--grey-grey-1, #FFF);
+    outline: none;
+}
+
+.tag-error {
+    margin-top: 4px;
+    width: 230px;
+    position: absolute;
+    color: #F5222D;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.remove-btn, .append-btn {
+    background-color: transparent;
+    height: 40px;
+    width: 100px;
+}
+
+.remove-btn {
+    background-color: transparent !important;
+    color: #F5222D;
+    border-color: #F5222D;
+}
+
+.remove-btn:hover {
+    background-color: #ff4d4f !important;
+}
+
+.append-btn {
+    color: #1890FF;
+    border-color: #1890FF;
+}
+
+.append-btn:hover {
+    background-color: #1677ff !important;
+}

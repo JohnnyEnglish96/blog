@@ -6,18 +6,24 @@ import { Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchGetUser } from '../../store/features/user/userThunks';
-import withCommonForm from '../hoc/withCommonForm';
+import { fetchLoginUser } from '../../store/features/user/userThunks';
+import withCommonForm from '../../hoc/withCommonForm';
 import { renderInput } from '../../utils/createInput';
 
 import styles from './LoginForm.module.scss';
 
-function LoginForm() {
-  const getUserData = useSelector((state) => state.user.details);
-  const defaultUser = JSON.parse(localStorage.getItem('defaultUser'));
+function LoginForm({ fromPage }) {
   const isLogin = useSelector((state) => state.user.isLogin);
-  const dispatch = useDispatch();
+  const getUserData = useSelector((state) => state.user.details);
   const navigate = useNavigate();
+  const defaultUser = JSON.parse(localStorage.getItem('defaultUser'));
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (isLogin) {
+      navigate(fromPage, { replace: true });
+    }
+  }, [fromPage, isLogin, navigate]);
 
   const {
     register,
@@ -34,7 +40,7 @@ function LoginForm() {
 
   const onSubmit = (data) => {
     localStorage.setItem('defaultUser', JSON.stringify(data));
-    dispatch(fetchGetUser(data));
+    dispatch(fetchLoginUser(data));
   };
 
   useEffect(() => {
@@ -47,12 +53,6 @@ function LoginForm() {
       setError('Password', { type: 'manual', message: 'Email or password is invalid.' });
     }
   }, [getUserData, setError]);
-
-  useEffect(() => {
-    if (isLogin) {
-      navigate('/');
-    }
-  }, [isLogin, navigate]);
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>

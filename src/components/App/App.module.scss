@@ -40,16 +40,11 @@ body {
 
 .error {
     font-family: Roboto;
-    width: 350px;
-    margin-top: 60px;
-}
-
-.not-found-page {
-    width: 350px;
     margin-top: 60px;
 }
 
 .header {
+    font-family: Inter;
     background-color: white;
     width: 100%;
     height: 80px;
@@ -59,10 +54,11 @@ body {
     padding: 16px 22px;
 }
 
+
 .sign-buttons {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
 }
 
 .avatar-wrapper {
@@ -104,8 +100,14 @@ body {
     &.edit {
         width: 320px;
         height: 500px;
-        margin-top: 25px;
         margin-top: 60px;
+    }
+
+    &.new-article, &.edit-article {
+        width: 870px;
+        min-height: 600px;
+        height: 100%;
+        margin-top: 34px;
     }
 }
 
@@ -113,7 +115,7 @@ body {
     font-weight: 500;
 }
 
-.error-message {
+.error-message, .error-message-article {
     margin-top: 4px;
     width: 230px;
     position: absolute;
@@ -121,6 +123,10 @@ body {
     font-size: 13px;
     font-weight: 400;
     line-height: 15px;
+}
+
+.error-message-article {
+    width: auto;
 }
 
 .error-message-checkbox {
@@ -140,6 +146,7 @@ body {
 
 .text-input {
     font-family: Roboto;
+    font-size: 16px;
     margin-top: 3px;
     padding: 8px 12px;
     border-radius: 4px;
@@ -149,7 +156,7 @@ body {
     width: 100%;
     outline: none;
 
-    &.error {
+    &.error-border {
         border-color: #F5222D;
     }
 }
@@ -196,7 +203,8 @@ body {
 .create-btn {
     font-family: Inter;
     font-size: 16px;
-    height: 35px !important;
+    width: 135px;
+    height: 45px !important;
     background-color: white;
     color: #52C41A;
     border-color: #52C41A;
@@ -210,3 +218,4 @@ body {
     color: black;
     border-color: grey;
 }
+

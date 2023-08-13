@@ -1,13 +1,12 @@
-/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/function-component-definition */
 import React, { useEffect } from 'react';
-import { Spin, Alert } from 'antd';
+import { Spin, Alert, Button, Result } from 'antd';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 
-import styles from '../App/App.module.scss';
-import { antIcon } from '../../pages/HomePage';
+import styles from '../components/App/App.module.scss';
+import { antIcon } from '../pages/HomePage';
 
 function withCommonForm(Component, extraProps) {
   return function WrappedComponent(props) {
@@ -26,17 +25,34 @@ function withCommonForm(Component, extraProps) {
     }, [edited, navigate]);
 
     let formStyle = null;
-
-    if (extraProps.formTitle.startsWith('Create')) {
+    if (extraProps.formTitle.endsWith('account')) {
       formStyle = styles.create;
-    } else if (extraProps.formTitle.startsWith('Edit')) {
+    } else if (extraProps.formTitle.includes('Edit Profile')) {
       formStyle = styles.edit;
+    } else if (extraProps.formTitle.includes('Create new article')) {
+      formStyle = styles['new-article'];
+    } else if (extraProps.formTitle.includes('Edit article')) {
+      formStyle = styles['edit-article'];
     }
 
     const showLoad = loading && <Spin className={styles.spinner} indicator={antIcon} />;
+    const textError =
+      error === '404'
+        ? 'Sorry, the page you visited does not exist.'
+        : 'Sorry, something went wrong.';
 
     const showError = error && (
-      <Alert className={styles.error} message="Error" description={error} type="error" showIcon />
+      <Result
+        className={styles.error}
+        status={error}
+        title={error}
+        subTitle={textError}
+        extra={
+          <Link to="/">
+            <Button type="primary">Back Home</Button>
+          </Link>
+        }
+      />
     );
 
     const formContent = <Component {...props} />;
@@ -74,7 +90,7 @@ function withCommonForm(Component, extraProps) {
     return (
       <>
         {showError}
-        {extraProps.formTitle.startsWith('Create') && showSuccess}
+        {extraProps.formTitle.endsWith('account') && showSuccess}
         {form}
       </>
     );
