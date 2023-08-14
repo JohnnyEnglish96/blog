@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -54,7 +52,7 @@ function RegisterForm() {
       {renderInput('Username', 'Username', 'Username', register, errors, 'text', {
         required: 'This field required',
         pattern: {
-          value: /^[a-z][a-z0-9]{2,20}$/gm,
+          value: /^[a-z][a-z0-9]{0,19}\s?[a-z0-9]{0,19}$/gm,
           message: 'Invalid username, example abcd123',
         },
         maxLength: {

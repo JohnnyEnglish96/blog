@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable no-debugger */
 import React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Button } from 'antd';
@@ -67,9 +66,11 @@ function EditArticle() {
         'text',
         {
           required: 'This field required',
-          maxLength: {
-            value: 30,
-            message: 'Title must be less than 30 symbols',
+          validate: (val) => {
+            if (!val.trim()) {
+              return 'Whitespaces are not allowed';
+            }
+            return null;
           },
         },
         true
@@ -84,9 +85,15 @@ function EditArticle() {
         'text',
         {
           required: 'This field required',
+          validate: (val) => {
+            if (!val.trim()) {
+              return 'Whitespaces are not allowed';
+            }
+            return null;
+          },
           maxLength: {
-            value: 30,
-            message: 'Description must be less than 30 symbols',
+            value: 100,
+            message: 'Description must be less than 100 symbols',
           },
         },
         true
@@ -100,12 +107,18 @@ function EditArticle() {
         errors,
         {
           required: 'This field required',
+          validate: (val) => {
+            if (!val.trim()) {
+              return 'Whitespaces are not allowed';
+            }
+            return null;
+          },
           maxLength: {
-            value: 500,
-            message: 'Text must be less than 500 symbols',
+            value: 800,
+            message: 'Text must be less than 800 symbols',
           },
         },
-        `${styles['text-area']} ${errors?.Text?.message ? styles['error-border'] : ''}`
+        `${styles['text-area']} ${errors?.Body?.message ? styles['error-border'] : ''}`
       )}
 
       <label htmlFor="tagList">
@@ -115,14 +128,23 @@ function EditArticle() {
             <li key={item.id} className={styles.tag}>
               <div>
                 <input
-                  className={styles['tag-input']}
+                  className={`${styles['tag-input']} ${
+                    errors[`tag${index}`] ? styles['error-border'] : ''
+                  }`}
                   type="text"
                   placeholder="Tag"
                   defaultValue={item.value}
                   {...register(`tag${index}`, {
+                    required: 'This field required',
+                    validate: (val) => {
+                      if (!val.trim()) {
+                        return 'Whitespaces are not allowed';
+                      }
+                      return null;
+                    },
                     maxLength: {
-                      value: 20,
-                      message: 'Tag must be less than 20 symbols',
+                      value: 50,
+                      message: 'Tag must be less than 50 symbols',
                     },
                   })}
                 />

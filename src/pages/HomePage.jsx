@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Spin, message } from 'antd';
+import { Button, Result, Spin, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 
 import ArticleList from '../components/ArticleList';
 import styles from '../components/App/App.module.scss';
@@ -21,15 +22,20 @@ function HomePage() {
   const loading = useSelector((state) => state.articles.loading);
   const complited = useSelector((state) => state.articles.complited);
   const loadingLogout = useSelector((state) => state.user.loading);
-  const error = useSelector((state) => state.articles.error);
+  const errorStatus = useSelector((state) => state.articles.error);
+  const pageNum = useSelector((state) => state.articles.pageNum);
+  const user = localStorage.getItem('user');
+  const { token } = user ? JSON.parse(user) : { token: '' };
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchArticles(1));
+    dispatch(fetchArticles({ id: pageNum, token }));
     dispatch(clearEdited());
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, token]);
 
   useEffect(() => {
     if (complited) {
@@ -40,16 +46,31 @@ function HomePage() {
     }
   }, [complited, messageApi]);
 
+  const textError =
+    errorStatus === '404'
+      ? 'Sorry, the page you visited does not exist.'
+      : 'Sorry, something went wrong.';
+
   const showError = (
-    <Alert className={styles.error} message="Error" description={error} type="error" showIcon />
+    <Result
+      className={styles.error}
+      status={errorStatus}
+      title={errorStatus}
+      subTitle={textError}
+      extra={
+        <Link to="/">
+          <Button type="primary">Back Home</Button>
+        </Link>
+      }
+    />
   );
   const showLoad = <Spin className={styles.spinner} indicator={antIcon} />;
-  const content = error || loading || loadingLogout ? null : <ArticleList />;
+  const content = errorStatus || loading || loadingLogout ? null : <ArticleList />;
 
   return (
     <>
       {contextHolder}
-      {error && showError}
+      {errorStatus && showError}
       {(loading || loadingLogout) && showLoad}
       {content}
     </>

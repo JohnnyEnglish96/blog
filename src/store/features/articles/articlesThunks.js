@@ -1,7 +1,17 @@
-/* eslint-disable no-debugger */
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 const baseUrl = 'https://blog.kata.academy/api/articles/';
+
+const getOption = (token) => {
+  return {
+    method: 'GET',
+    headers: {
+      Authorization: `Token ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+  };
+};
 
 const postOption = (body) => {
   const { token } = JSON.parse(localStorage.getItem('user'));
@@ -64,13 +74,24 @@ const deleteOption = (token) => {
   };
 };
 
+const postLikeOption = (token) => {
+  return {
+    method: 'POST',
+    headers: {
+      Authorization: `Token ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+  };
+};
+
 const fetchArticleBySlug = createAsyncThunk(
   'article/fetchArticleBySlug',
-  async (slug, { rejectWithValue }) => {
+  async ({ slug, token }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}${slug}`);
-      if (!response.ok) {
-        throw new Error(`unable to get article, ${response.status}`);
+      const response = await fetch(`${baseUrl}${slug}`, getOption(token));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(response.status);
       }
       const data = response.json();
       return data;
@@ -82,12 +103,12 @@ const fetchArticleBySlug = createAsyncThunk(
 
 const fetchArticles = createAsyncThunk(
   'articles/fetchArticles',
-  async (id, { rejectWithValue }) => {
+  async ({ id, token }, { rejectWithValue }) => {
     try {
       const offset = id === 1 ? 0 : id * 5 - 5;
-      const response = await fetch(`${baseUrl}?limit=5&offset=${offset}`);
-      if (!response.ok) {
-        throw new Error(`server Error ${response.status}`);
+      const response = await fetch(`${baseUrl}?limit=5&offset=${offset}`, getOption(token));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(response.status);
       }
       const data = await response.json();
 
@@ -104,7 +125,7 @@ const fetchNewArticle = createAsyncThunk(
     try {
       const response = await fetch(`${baseUrl}`, postOption(body));
       if (!response.ok && response.status !== 422) {
-        throw new Error(`server Error ${response.status}`);
+        throw new Error(response.status);
       }
       const data = await response.json();
       return data;
@@ -121,7 +142,7 @@ const fetchUpdateArticle = createAsyncThunk(
     try {
       const response = await fetch(`${baseUrl}${slug}`, putOption(body));
       if (!response.ok && response.status !== 422) {
-        throw new Error(`server Error ${response.status}`);
+        throw new Error(response.status);
       }
       const data = await response.json();
       return data;
@@ -138,9 +159,43 @@ const fetchDeleteArticle = createAsyncThunk(
     try {
       const response = await fetch(`${baseUrl}${slug}`, deleteOption(token));
       if (!response.ok && response.status !== 422) {
-        throw new Error(`server Error ${response.status}`);
+        throw new Error(response.status);
       }
       return true;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const fetchPutLike = createAsyncThunk(
+  'articles/fetchPutLike',
+  async (articleData, { rejectWithValue }) => {
+    const { slug, token } = articleData;
+    try {
+      const response = await fetch(`${baseUrl}${slug}/favorite`, postLikeOption(token));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(response.status);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const fetchPutDisLike = createAsyncThunk(
+  'articles/fetchPutDisLike',
+  async (articleData, { rejectWithValue }) => {
+    const { slug, token } = articleData;
+    try {
+      const response = await fetch(`${baseUrl}${slug}/favorite`, deleteOption(token));
+      if (!response.ok && response.status !== 422) {
+        throw new Error(response.status);
+      }
+      const data = await response.json();
+      return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -153,4 +208,6 @@ export {
   fetchNewArticle,
   fetchUpdateArticle,
   fetchDeleteArticle,
+  fetchPutLike,
+  fetchPutDisLike,
 };

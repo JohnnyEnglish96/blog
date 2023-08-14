@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable no-debugger */
 import React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Button } from 'antd';
@@ -80,8 +79,8 @@ function NewArticle() {
             return null;
           },
           maxLength: {
-            value: 30,
-            message: 'Description must be less than 30 symbols',
+            value: 100,
+            message: 'Description must be less than 100 symbols',
           },
         },
         true
@@ -102,8 +101,8 @@ function NewArticle() {
             return null;
           },
           maxLength: {
-            value: 500,
-            message: 'Text must be less than 500 symbols',
+            value: 800,
+            message: 'Text must be less than 800 symbols',
           },
         },
         `${styles['text-area']} ${errors?.Body?.message ? styles['error-border'] : ''}`
@@ -130,8 +129,8 @@ function NewArticle() {
                       return null;
                     },
                     maxLength: {
-                      value: 20,
-                      message: 'Tag must be less than 20 symbols',
+                      value: 50,
+                      message: 'Tag must be less than 50 symbols',
                     },
                   })}
                 />

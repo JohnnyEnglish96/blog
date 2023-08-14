@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import { createSlice, isAnyOf } from '@reduxjs/toolkit';
 
 import { fetchNewUser, fetchLoginUser, fetchEditUser, LogOut, fetchGetUser } from './userThunks';

@@ -72,6 +72,14 @@ body {
     .icon {
         width: 46px;
         height: 46px;
+        display: flex;
+        align-items: center;
+        
+        img {
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+        }
     }
 }
 

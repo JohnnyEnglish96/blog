@@ -1,6 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-debugger */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, ConfigProvider } from 'antd';
 import { Outlet, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,11 +33,11 @@ function Header() {
       dispatch(fetchGetUser(getUser?.token));
       setUpdatedUser(JSON.parse(user));
     }
-  }, [edited, user, isLogin, dispatch]);
+  }, [edited, user, isLogin, dispatch, getUser?.token]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(LogOut());
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     const handleStorage = (e) => {
@@ -53,7 +51,7 @@ function Header() {
     window.addEventListener('storage', handleStorage);
 
     return () => window.removeEventListener('storage', handleStorage);
-  }, [dispatch]);
+  }, [dispatch, handleLogout]);
 
   const icon = (
     <div className={styles.icon}>

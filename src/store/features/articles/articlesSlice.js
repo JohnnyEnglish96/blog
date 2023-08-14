@@ -6,13 +6,17 @@ import {
   fetchNewArticle,
   fetchUpdateArticle,
   fetchDeleteArticle,
+  fetchPutLike,
+  fetchPutDisLike,
 } from './articlesThunks';
+
+const defaultPageNum = JSON.parse(sessionStorage.getItem('pageNum')) || 1;
 
 const initialState = {
   articles: [],
   article: null,
   amount: 0,
-  pageNum: 1,
+  pageNum: defaultPageNum,
   loading: false,
   error: null,
   complited: false,
@@ -29,10 +33,16 @@ const articlesSlice = createSlice({
           fetchArticles.pending,
           fetchNewArticle.pending,
           fetchUpdateArticle.pending,
-          fetchDeleteArticle.pending
+          fetchDeleteArticle.pending,
+          fetchPutLike.pending
         ),
-        (state) => {
-          state.loading = true;
+        (state, action) => {
+          const { type } = action;
+          if (type === fetchPutLike.pending.type || type === fetchPutDisLike.pending.type) {
+            state.loading = false;
+          } else {
+            state.loading = true;
+          }
           state.error = null;
         }
       )
@@ -42,7 +52,8 @@ const articlesSlice = createSlice({
           fetchArticles.fulfilled,
           fetchNewArticle.fulfilled,
           fetchUpdateArticle.fulfilled,
-          fetchDeleteArticle.fulfilled
+          fetchDeleteArticle.fulfilled,
+          fetchPutLike.fulfilled
         ),
         (state, action) => {
           state.loading = false;
@@ -53,7 +64,7 @@ const articlesSlice = createSlice({
             state.complited = false;
             state.articles = payload.articles;
             state.amount = payload.articlesCount;
-            state.pageNum = meta.arg;
+            state.pageNum = meta.arg.id;
           } else if (
             type === fetchNewArticle.fulfilled.type ||
             type === fetchUpdateArticle.fulfilled.type ||
@@ -68,10 +79,12 @@ const articlesSlice = createSlice({
           fetchArticleBySlug.rejected,
           fetchArticles.rejected,
           fetchUpdateArticle.rejected,
-          fetchDeleteArticle.rejected
+          fetchDeleteArticle.rejected,
+          fetchPutLike.rejected,
+          fetchPutDisLike.rejected
         ),
         (state, action) => {
-          state.loading = true;
+          state.loading = false;
           state.error = action.payload;
         }
       );

@@ -1,8 +1,7 @@
-/* eslint-disable no-debugger */
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { Alert, Spin } from 'antd';
+import { Link, useParams } from 'react-router-dom';
+import { Button, Result, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import styles from '../components/App/App.module.scss';
@@ -20,24 +19,42 @@ const antIcon = (
 
 function ArticlePage() {
   const loading = useSelector((state) => state.articles.loading);
-  const error = useSelector((state) => state.articles.error);
+  const errorStatus = useSelector((state) => state.articles.error);
   const article = useSelector((state) => state.articles.article);
   const dispatch = useDispatch();
   const { slug } = useParams();
+  const user = localStorage.getItem('user');
+  const { token } = user ? JSON.parse(user) : { token: '' };
 
   useEffect(() => {
-    dispatch(fetchArticleBySlug(slug));
-  }, [dispatch, slug]);
+    dispatch(fetchArticleBySlug({ slug, token }));
+  }, [dispatch, slug, token]);
+
+  const textError =
+    errorStatus === '404'
+      ? 'Sorry, the page you visited does not exist.'
+      : 'Sorry, something went wrong.';
 
   const showError = (
-    <Alert className={styles.error} message="Error" description={error} type="error" showIcon />
+    <Result
+      className={styles.error}
+      status={errorStatus}
+      title={errorStatus}
+      subTitle={textError}
+      extra={
+        <Link to="/">
+          <Button type="primary">Back Home</Button>
+        </Link>
+      }
+    />
   );
   const showLoad = <Spin className={styles.spinner} indicator={antIcon} />;
-  const content = error || loading || !article ? null : <Article article={article} isDetailed />;
+  const content =
+    errorStatus || loading || !article ? null : <Article article={article} isDetailed />;
 
   return (
     <>
-      {error && showError}
+      {errorStatus && showError}
       {loading && showLoad}
       {content}
     </>

@@ -16,10 +16,10 @@
     border: 1px solid var(--grey-grey-5, #D9D9D9);
     background: var(--grey-grey-1, #FFF);
     outline: none;
+}
 
-    &.error-border{
-        border-color: #F5222D;
-    }
+.error-border{
+    border-color: #F5222D !important;
 }
 
 textarea {
