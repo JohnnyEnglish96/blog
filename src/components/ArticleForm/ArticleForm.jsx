@@ -1,15 +1,14 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { renderInput, renderTextArea } from '../../utils/createInput';
+import { renderInput, renderTextArea } from '../../utils/createForm';
 import withCommonForm from '../../hoc/withCommonForm';
-import { fetchUpdateArticle } from '../../store/features/articles/articlesThunks';
+import { fetchNewArticle, fetchUpdateArticle } from '../../store/features/articles/articlesThunks';
 
-import styles from './EditArticle.module.scss';
+import styles from './ArticleForm.module.scss';
 
 const defaultTagList = (arr) => {
   return (
@@ -21,7 +20,7 @@ const defaultTagList = (arr) => {
   );
 };
 
-function EditArticle() {
+function ArticleForm() {
   const article = useSelector((state) => state.articles.article);
   const { title = '', description = '', body = '', tagList = '' } = article || {};
 
@@ -52,7 +51,18 @@ function EditArticle() {
 
   const onSubmit = (data) => {
     const newTagList = data.tagList.map((tag) => watch(tag.name));
-    dispatch(fetchUpdateArticle({ ...data, tagList: newTagList, slug })).then(() => navigator('/'));
+    if (slug) {
+      dispatch(fetchUpdateArticle({ ...data, tagList: newTagList, slug })).then(() =>
+        navigator('/')
+      );
+    } else {
+      dispatch(fetchNewArticle({ ...data, tagList: newTagList })).then(() => navigator('/'));
+    }
+  };
+
+  const handleRemove = (index) => remove(index);
+  const handleAppend = (index) => {
+    append({ name: `tag${index + 1}` }, { focusName: `tag${index + 1}` });
   };
 
   return (
@@ -158,7 +168,7 @@ function EditArticle() {
                   className={styles['remove-btn']}
                   type="primary"
                   danger
-                  onClick={() => remove(index)}
+                  onClick={() => handleRemove(index)}
                 >
                   Delete
                 </Button>
@@ -168,9 +178,7 @@ function EditArticle() {
                 <Button
                   type="primary"
                   className={styles['append-btn']}
-                  onClick={() => {
-                    append({ name: `tag${index + 1}` }, { focusName: `tag${index + 1}` });
-                  }}
+                  onClick={() => handleAppend(index)}
                 >
                   Add tag
                 </Button>
@@ -192,4 +200,4 @@ function EditArticle() {
   );
 }
 
-export default withCommonForm(EditArticle, { formTitle: 'Edit article' });
+export default withCommonForm(ArticleForm, { formTitle: 'Edit article' });

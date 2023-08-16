@@ -2,7 +2,38 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 
 const baseUrl = 'https://blog.kata.academy/api/';
 
-const postOption = (userData, newUser) => {
+const createRequestOption = (method, bodyParams = {}) => {
+  const { token } = JSON.parse(localStorage.getItem('user')) || {};
+
+  const auth = method === 'PUT' || method === 'GET' ? { Authorization: `Token ${token}` } : null;
+  const defaultHeaders = {
+    ...auth,
+    accept: 'application/json',
+    'Content-Type': 'application/json;charset=utf-8',
+  };
+
+  return {
+    method,
+    headers: defaultHeaders,
+    ...bodyParams,
+  };
+};
+
+const createPutMethod = (newUserData) => {
+  const { Username, Password, Email, Avatar } = newUserData;
+  const bodyInfo = {
+    user: {
+      email: Email,
+      username: Username,
+      password: Password,
+      image: Avatar,
+    },
+  };
+
+  return createRequestOption('PUT', { body: JSON.stringify(bodyInfo) });
+};
+
+const createPostMethod = (userData, newUser) => {
   const { Username, Email, Password } = userData;
   let bodyInfo;
   if (newUser) {
@@ -21,117 +52,52 @@ const postOption = (userData, newUser) => {
       },
     };
   }
-  return {
-    method: 'POST',
-    headers: {
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify(bodyInfo),
-  };
+  return createRequestOption('POST', { body: JSON.stringify(bodyInfo) });
 };
 
-const putOption = (newUserData) => {
-  const { Username, Password, Email, Avatar } = newUserData;
-  const { token } = JSON.parse(localStorage.getItem('user'));
-  const bodyInfo = {
-    user: {
-      email: Email,
-      username: Username,
-      password: Password,
-      image: Avatar,
-    },
-  };
-
-  return {
-    method: 'PUT',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify(bodyInfo),
-  };
-};
-
-const getOption = (token) => {
-  return {
-    method: 'GET',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-  };
-};
-
-const fetchNewUser = createAsyncThunk(
-  'user/fetchNewUser',
-  async (userData, { rejectWithValue }) => {
+const createAsyncThunkWithFetch = (name, fetchFunction) => {
+  return createAsyncThunk(name, async (args, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}users/`, postOption(userData, true));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
-
+      const data = fetchFunction(args);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
+  });
+};
+
+const fetchData = async (url, options) => {
+  const response = await fetch(url, options);
+  if (!response.ok && response.status !== 422) {
+    throw new Error(response.status);
   }
-);
 
-const fetchLoginUser = createAsyncThunk(
-  'user/fetchLoginUser',
-  async (userData, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${baseUrl}users/login`, postOption(userData, false));
+  return response.json();
+};
 
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
-
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-const fetchGetUser = createAsyncThunk('user/fetchGetUser', async (token, { rejectWithValue }) => {
-  try {
-    const response = await fetch(`${baseUrl}user`, getOption(token));
-
-    if (!response.ok && response.status !== 422) {
-      throw new Error(response.status);
-    }
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    return rejectWithValue(error.message);
-  }
+const fetchNewUser = createAsyncThunkWithFetch('user/fetchNewUser', async (userData) => {
+  const url = `${baseUrl}users/`;
+  const options = createPostMethod(userData, true);
+  return fetchData(url, options);
 });
 
-const fetchEditUser = createAsyncThunk(
-  'user/fetchEditUser',
-  async (newUserData, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${baseUrl}user`, putOption(newUserData));
+const fetchLoginUser = createAsyncThunkWithFetch('user/fetchLoginUser', async (userData) => {
+  const url = `${baseUrl}users/login`;
+  const options = createPostMethod(userData, false);
+  return fetchData(url, options);
+});
 
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
+const fetchGetUser = createAsyncThunkWithFetch('user/fetchGetUser', async () => {
+  const url = `${baseUrl}user`;
+  const options = createRequestOption('GET');
+  return fetchData(url, options);
+});
 
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+const fetchEditUser = createAsyncThunkWithFetch('user/fetchEditUser', async (newUserData) => {
+  const url = `${baseUrl}user`;
+  const options = createPutMethod(newUserData);
+  return fetchData(url, options);
+});
 
 const LogOut = createAsyncThunk('user/logOut', async () => {
   return new Promise((resolve) => {

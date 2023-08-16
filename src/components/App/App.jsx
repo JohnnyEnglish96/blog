@@ -8,8 +8,7 @@ import ArticlePage from '../../pages/ArticlePage';
 import SignUpPage from '../../pages/SignUpPage';
 import SignInPage from '../../pages/SignInPage';
 import EditProfilePage from '../../pages/EditProfilePage';
-import CreateArticle from '../../pages/CreateArticle';
-import ChangeArticle from '../../pages/ChangeArticle';
+import ArticleFormPage from '../../pages/ArticleFormPage';
 import RequireAuth from '../../hoc/RequireAuth';
 
 function App() {
@@ -32,7 +31,7 @@ function App() {
           path="new-article"
           element={
             <RequireAuth>
-              <CreateArticle />
+              <ArticleFormPage />
             </RequireAuth>
           }
         />
@@ -40,7 +39,7 @@ function App() {
           path="articles/:slug/edit"
           element={
             <RequireAuth>
-              <ChangeArticle />
+              <ArticleFormPage />
             </RequireAuth>
           }
         />

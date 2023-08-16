@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from 'antd';
@@ -7,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchLoginUser } from '../../store/features/user/userThunks';
 import withCommonForm from '../../hoc/withCommonForm';
-import { renderInput } from '../../utils/createInput';
+import { renderInput } from '../../utils/createForm';
 
 import styles from './LoginForm.module.scss';
 

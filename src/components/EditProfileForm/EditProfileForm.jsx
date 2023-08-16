@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from 'antd';
@@ -7,15 +6,17 @@ import { useNavigate } from 'react-router-dom';
 
 import { fetchEditUser } from '../../store/features/user/userThunks';
 import withCommonForm from '../../hoc/withCommonForm';
-import { renderInput } from '../../utils/createInput';
+import { renderInput } from '../../utils/createForm';
 
 import styles from './EditProfileForm.module.scss';
 
 function EditProfileForm() {
-  const edited = useSelector((state) => state.user.edited);
   const getUserData = useSelector((state) => state.user.details);
   const defaultUser = JSON.parse(localStorage.getItem('defaultUser'));
+  const edited = useSelector((state) => state.user.edited);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const {
     register,
     setError,
@@ -48,8 +49,6 @@ function EditProfileForm() {
     }
   }, [edited, navigate]);
 
-  const dispatch = useDispatch();
-
   const onSubmit = (data) => {
     localStorage.setItem('defaultUser', JSON.stringify(data));
     dispatch(fetchEditUser(data));
@@ -60,7 +59,7 @@ function EditProfileForm() {
       {renderInput('Username', 'Username', 'Username', register, errors, 'text', {
         required: 'This field required',
         pattern: {
-          value: /^[a-z][a-z0-9]{0,19}\s?[a-z0-9]{0,19}$/gm,
+          value: /^[a-z][a-z0-9]{0,19}[a-z0-9]{0,19}$/gm,
           message: 'Invalid username, example abcd123',
         },
         maxLength: {

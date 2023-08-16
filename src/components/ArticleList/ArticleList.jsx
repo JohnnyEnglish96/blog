@@ -21,6 +21,7 @@ function ArticleList() {
     sessionStorage.setItem('pageNum', id);
     dispatch(fetchArticles({ id, token }));
   };
+
   return (
     <>
       <ul className={styles['article-list']}>

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,7 +6,7 @@ import { Button, Divider } from 'antd';
 
 import { fetchNewUser } from '../../store/features/user/userThunks';
 import withCommonForm from '../../hoc/withCommonForm';
-import { renderInput, renderCheckbox } from '../../utils/createInput';
+import { renderInput, renderCheckbox } from '../../utils/createForm';
 
 import styles from './RegisterForm.module.scss';
 
@@ -52,7 +51,7 @@ function RegisterForm() {
       {renderInput('Username', 'Username', 'Username', register, errors, 'text', {
         required: 'This field required',
         pattern: {
-          value: /^[a-z][a-z0-9]{0,19}\s?[a-z0-9]{0,19}$/gm,
+          value: /^[a-z][a-z0-9]{0,19}[a-z0-9]{0,19}$/gm,
           message: 'Invalid username, example abcd123',
         },
         maxLength: {

@@ -2,20 +2,24 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 
 const baseUrl = 'https://blog.kata.academy/api/articles/';
 
-const getOption = (token) => {
+const createRequestOption = (token, method, bodyParams = {}) => {
+  const defaultHeaders = {
+    Authorization: `Token ${token}`,
+    accept: 'application/json',
+    'Content-Type': 'application/json;charset=utf-8',
+  };
+
   return {
-    method: 'GET',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
+    method,
+    headers: defaultHeaders,
+    ...bodyParams,
   };
 };
 
-const postOption = (body) => {
+const createRequestWithBodyOption = (body, method) => {
   const { token } = JSON.parse(localStorage.getItem('user'));
   const { Title, description, tagList, Body } = body;
+
   const fixedTagList = tagList.map((tag) => tag.trim());
 
   const bodyInfo = {
@@ -27,178 +31,85 @@ const postOption = (body) => {
     },
   };
 
-  return {
-    method: 'POST',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify(bodyInfo),
-  };
+  return createRequestOption(token, method, { body: JSON.stringify(bodyInfo) });
 };
 
-const putOption = (body) => {
-  const { token } = JSON.parse(localStorage.getItem('user'));
-  const { Title, description, tagList, Body } = body;
-  const fixedTagList = tagList.map((tag) => tag.trim());
-
-  const bodyInfo = {
-    article: {
-      title: Title.trim(),
-      description: description.trim(),
-      body: Body.trim(),
-      tagList: fixedTagList,
-    },
-  };
-
-  return {
-    method: 'PUT',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify(bodyInfo),
-  };
+const createAsyncThunkWithFetch = (name, fetchFunction) => {
+  return createAsyncThunk(name, async (args, { rejectWithValue }) => {
+    try {
+      const data = fetchFunction(args);
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  });
 };
 
-const deleteOption = (token) => {
-  return {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-  };
+const fetchData = async (url, options) => {
+  const response = await fetch(url, options);
+  if (!response.ok && response.status !== 422) {
+    throw new Error(response.status);
+  }
+
+  return response.json();
 };
 
-const postLikeOption = (token) => {
-  return {
-    method: 'POST',
-    headers: {
-      Authorization: `Token ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-  };
-};
-
-const fetchArticleBySlug = createAsyncThunk(
+const fetchArticleBySlug = createAsyncThunkWithFetch(
   'article/fetchArticleBySlug',
-  async ({ slug, token }, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${baseUrl}${slug}`, getOption(token));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+  async ({ slug, token }) => {
+    const url = `${baseUrl}${slug}`;
+    const options = createRequestOption(token, 'GET');
+    return fetchData(url, options);
   }
 );
 
-const fetchArticles = createAsyncThunk(
-  'articles/fetchArticles',
-  async ({ id, token }, { rejectWithValue }) => {
-    try {
-      const offset = id === 1 ? 0 : id * 5 - 5;
-      const response = await fetch(`${baseUrl}?limit=5&offset=${offset}`, getOption(token));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
+const fetchArticles = createAsyncThunkWithFetch('articles/fetchArticles', async ({ id, token }) => {
+  const offset = id === 1 ? 0 : id * 5 - 5;
+  const url = `${baseUrl}?limit=5&offset=${offset}`;
+  const options = createRequestOption(token, 'GET');
+  return fetchData(url, options);
+});
 
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+const fetchNewArticle = createAsyncThunkWithFetch('articles/fetchNewArticle', async (body) => {
+  const url = `${baseUrl}`;
+  const options = createRequestWithBodyOption(body, 'POST');
+  return fetchData(url, options);
+});
 
-const fetchNewArticle = createAsyncThunk(
-  'articles/fetchNewArticle',
-  async (body, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${baseUrl}`, postOption(body));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-const fetchUpdateArticle = createAsyncThunk(
+const fetchUpdateArticle = createAsyncThunkWithFetch(
   'articles/fetchUpdateArticle',
-  async (body, { rejectWithValue }) => {
+  async (body) => {
     const { slug } = body;
-    try {
-      const response = await fetch(`${baseUrl}${slug}`, putOption(body));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+    const url = `${baseUrl}${slug}`;
+    const options = createRequestWithBodyOption(body, 'PUT');
+    return fetchData(url, options);
   }
 );
 
-const fetchDeleteArticle = createAsyncThunk(
+const fetchDeleteArticle = createAsyncThunkWithFetch(
   'articles/fetchDeleteArticle',
-  async (articleData, { rejectWithValue }) => {
+  async (articleData) => {
     const { slug, token } = articleData;
-    try {
-      const response = await fetch(`${baseUrl}${slug}`, deleteOption(token));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      return true;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+    const url = `${baseUrl}${slug}`;
+    const options = createRequestOption(token, 'DELETE');
+    return fetchData(url, options);
   }
 );
 
-const fetchPutLike = createAsyncThunk(
-  'articles/fetchPutLike',
-  async (articleData, { rejectWithValue }) => {
-    const { slug, token } = articleData;
-    try {
-      const response = await fetch(`${baseUrl}${slug}/favorite`, postLikeOption(token));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+const fetchPutLike = createAsyncThunkWithFetch('articles/fetchPutLike', async (articleData) => {
+  const { slug, token } = articleData;
+  const url = `${baseUrl}${slug}/favorite`;
+  const options = createRequestOption(token, 'POST');
+  return fetchData(url, options);
+});
 
-const fetchPutDisLike = createAsyncThunk(
+const fetchPutDisLike = createAsyncThunkWithFetch(
   'articles/fetchPutDisLike',
-  async (articleData, { rejectWithValue }) => {
+  async (articleData) => {
     const { slug, token } = articleData;
-    try {
-      const response = await fetch(`${baseUrl}${slug}/favorite`, deleteOption(token));
-      if (!response.ok && response.status !== 422) {
-        throw new Error(response.status);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+    const url = `${baseUrl}${slug}/favorite`;
+    const options = createRequestOption(token, 'DELETE');
+    return fetchData(url, options);
   }
 );
 

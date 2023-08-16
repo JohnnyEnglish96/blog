@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable react/function-component-definition */
 import React, { useEffect } from 'react';
 import { Spin, Alert, Button, Result } from 'antd';
 import { useSelector } from 'react-redux';
@@ -9,7 +7,7 @@ import styles from '../components/App/App.module.scss';
 import { antIcon } from '../pages/HomePage';
 
 function withCommonForm(Component, extraProps) {
-  return function WrappedComponent(props) {
+  function WrappedComponent(props) {
     const getUserData = useSelector((state) => state.user.details);
     const isRegistered = useSelector((state) => state.user.isRegistered);
     const loading = useSelector((state) => state.user.loading);
@@ -94,7 +92,8 @@ function withCommonForm(Component, extraProps) {
         {form}
       </>
     );
-  };
+  }
+  return WrappedComponent;
 }
 
 export default withCommonForm;
