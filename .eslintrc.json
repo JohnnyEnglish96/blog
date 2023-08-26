@@ -5,9 +5,8 @@
     },
     "ignorePatterns": ["node_modules", "dist", "build"],
     "extends": [
-      "airbnb",
-      "airbnb/hooks",
       "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
       "plugin:react/jsx-runtime",
       "plugin:react/recommended",
       "plugin:import/errors",
@@ -21,7 +20,7 @@
       "ecmaVersion": "latest",
       "sourceType": "module"
     },
-    "plugins": ["react", "import", "prettier"],
+    "plugins": ["react", "import", "@typescript-eslint", "prettier"],
     "rules": {
       "indent": ["error", 2, { "SwitchCase": 1}],
       "prettier/prettier": ["error", { "endOfLine":"auto" }],
@@ -30,7 +29,7 @@
       "react/function-component-definition": [
         2,
         {
-          "namedComponents": "function-declaration",
+          "namedComponents": "arrow-function",
           "unnamedComponents": "arrow-function"
         }
       ],
@@ -52,7 +51,7 @@
         }
       ],
       "import/no-unresolved": [2, { "caseSensitive": false }],
-      "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+      "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".tsx"] }],
       "import/order": [
         2,
         {
@@ -65,10 +64,12 @@
       "react": {
         "version": "detect"
       },
+      "import/parsers": {
+        "@typescript-eslint/parser": [".ts", ".tsx"]
+      },
       "import/resolver": {
         "node": {
-          "extensions": [".js", ".jsx", ".ts", ".tsx"],
-          "moduleDirectory": ["node_modules", "src/"]
+          "extensions": [".js", ".jsx", ".ts", ".tsx"]
         }
       }
     }
